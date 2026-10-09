@@ -1,0 +1,1838 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial: Kit Bóveda + Sistema Operativo de IA</title>
+  <style>
+    :root {
+      --bg-base: #0a0e1a;
+      --bg-card: #0f172a;
+      --bg-card-hover: #162038;
+      --bg-accent: #1e3a5f;
+      --accent-primary: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.25);
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --border-subtle: #1e293b;
+      --border-accent: #2563eb;
+      --code-bg: #030712;
+      --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --base-font-size: 16px;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="light"] {
+      --bg-base: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f1f5f9;
+      --bg-accent: #e2e8f0;
+      --accent-primary: #0284c7;
+      --accent-glow: rgba(2, 132, 199, 0.15);
+      --accent-emerald: #059669;
+      --accent-amber: #d97706;
+      --accent-rose: #e11d48;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #94a3b8;
+      --border-subtle: #cbd5e1;
+      --border-accent: #3b82f6;
+      --code-bg: #1e293b;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-stack);
+      font-size: var(--base-font-size);
+      line-height: 1.65;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .app-header {
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.6rem;
+      border-radius: var(--radius-sm);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .brand-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+
+    .controls-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-tool {
+      background-color: var(--bg-accent);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      padding: 0.4rem 0.75rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: var(--transition-smooth);
+    }
+
+    .btn-tool:hover {
+      background-color: var(--accent-primary);
+      color: #030712;
+      border-color: var(--accent-primary);
+    }
+
+    .btn-tool:active {
+      transform: scale(0.97);
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+      min-width: 180px;
+      max-width: 280px;
+    }
+
+    .search-input {
+      width: 100%;
+      background-color: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 0.4rem 0.75rem 0.4rem 2rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      transition: var(--transition-smooth);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.65rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+      font-size: 0.85rem;
+    }
+
+    .nav-tabs-wrapper {
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 57px;
+      z-index: 40;
+    }
+
+    .nav-tabs {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: thin;
+      list-style: none;
+      padding: 0 0.5rem;
+    }
+
+    .nav-tabs::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .nav-tabs::-webkit-scrollbar-thumb {
+      background: var(--border-subtle);
+      border-radius: 4px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--text-muted);
+      padding: 0.85rem 1.1rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: var(--transition-smooth);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .tab-btn.active {
+      color: var(--accent-primary);
+      border-bottom-color: var(--accent-primary);
+      background-color: rgba(56, 189, 248, 0.05);
+    }
+
+    .reading-progress-track {
+      width: 100%;
+      height: 3px;
+      background-color: transparent;
+      position: sticky;
+      top: 102px;
+      z-index: 45;
+    }
+
+    .reading-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #38bdf8, #2563eb, #10b981);
+      transition: width 0.15s ease-out;
+    }
+
+    .main-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem 4rem 1rem;
+      flex: 1;
+      width: 100%;
+    }
+
+    .panel {
+      display: none;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .panel.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .hero-svg-mount {
+      width: 100%;
+      min-height: 220px;
+      background: linear-gradient(180deg, rgba(30, 58, 95, 0.4) 0%, rgba(15, 23, 42, 0.8) 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-svg-mount img, .hero-svg-mount svg {
+      display: block;
+      width: 100%;
+      max-width: 900px;
+      height: auto;
+      margin: 0 auto;
+    }
+
+    .hero-caption {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: -1.25rem;
+      margin-bottom: 2rem;
+      font-style: italic;
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      transition: var(--transition-smooth);
+    }
+
+    .card:hover {
+      border-color: rgba(56, 189, 248, 0.3);
+      background-color: var(--bg-card-hover);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent-primary);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-blue { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+    .badge-green { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .badge-amber { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .badge-rose { background: rgba(244, 63, 94, 0.2); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.4); }
+
+    .action-step {
+      background-color: var(--bg-base);
+      border-left: 4px solid var(--accent-primary);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      padding: 1.2rem;
+      margin: 1.25rem 0;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .step-header {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .step-tag {
+      font-size: 0.75rem;
+      background: var(--bg-accent);
+      padding: 0.2rem 0.5rem;
+      border-radius: var(--radius-sm);
+      color: var(--accent-primary);
+      font-weight: bold;
+    }
+
+    .step-details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .detail-pill {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 0.8rem;
+    }
+
+    .detail-pill strong {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      margin-bottom: 0.2rem;
+    }
+
+    .code-container {
+      position: relative;
+      background-color: var(--code-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      margin: 1rem 0;
+      overflow: hidden;
+    }
+
+    .code-topbar {
+      background-color: rgba(255, 255, 255, 0.05);
+      padding: 0.4rem 0.85rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .copy-btn {
+      background-color: var(--bg-accent);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+
+    .copy-btn:hover {
+      background-color: var(--accent-primary);
+      color: #030712;
+    }
+
+    pre code {
+      display: block;
+      padding: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: #e2e8f0;
+      overflow-x: auto;
+      white-space: pre;
+      line-height: 1.5;
+    }
+
+    code:not(pre code) {
+      font-family: var(--font-mono);
+      background-color: var(--bg-accent);
+      color: var(--accent-primary);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.88em;
+    }
+
+    details {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      margin: 1rem 0;
+      padding: 0.75rem 1rem;
+      transition: var(--transition-smooth);
+    }
+
+    details[open] {
+      border-color: var(--border-accent);
+      background-color: var(--bg-card-hover);
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+
+    summary::after {
+      content: "▾";
+      font-size: 1.1rem;
+      transition: transform 0.2s ease;
+      color: var(--accent-primary);
+    }
+
+    details[open] summary::after {
+      transform: rotate(180deg);
+    }
+
+    .details-content {
+      padding-top: 1rem;
+      margin-top: 0.5rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--bg-accent);
+      color: var(--text-main);
+      padding: 0.85rem 1rem;
+      font-weight: 700;
+      border-bottom: 2px solid var(--border-subtle);
+    }
+
+    td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      background-color: var(--bg-card);
+    }
+
+    tr:hover td {
+      background-color: var(--bg-card-hover);
+    }
+
+    .checklist-group {
+      list-style: none;
+      margin: 1rem 0;
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      padding: 0.85rem 1rem;
+      border-radius: var(--radius-md);
+      margin-bottom: 0.6rem;
+      transition: var(--transition-smooth);
+    }
+
+    .checklist-item:hover {
+      border-color: var(--accent-primary);
+    }
+
+    .checklist-item input[type="checkbox"] {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--text-muted);
+      border-radius: 4px;
+      margin-top: 0.15rem;
+      cursor: pointer;
+      display: grid;
+      place-content: center;
+      transition: var(--transition-smooth);
+      flex-shrink: 0;
+    }
+
+    .checklist-item input[type="checkbox"]:checked {
+      background-color: var(--accent-emerald);
+      border-color: var(--accent-emerald);
+    }
+
+    .checklist-item input[type="checkbox"]:checked::before {
+      content: "✓";
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .checklist-item.completed {
+      opacity: 0.75;
+      text-decoration: line-through;
+    }
+
+    .toast-box {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background-color: var(--accent-emerald);
+      color: #ffffff;
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      z-index: 100;
+      opacity: 0;
+      transform: translateY(15px);
+      pointer-events: none;
+      transition: var(--transition-smooth);
+    }
+
+    .toast-box.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .author-card {
+      background: linear-gradient(135deg, var(--bg-card) 0%, rgba(30, 58, 95, 0.6) 100%);
+      border: 2px solid var(--accent-primary);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .author-name {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #ffffff;
+      margin-bottom: 0.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    .author-role {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1.25rem;
+    }
+
+    .author-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+      text-align: left;
+    }
+
+    .btn-to-top {
+      position: fixed;
+      bottom: 2rem;
+      left: 2rem;
+      background-color: var(--bg-card);
+      color: var(--accent-primary);
+      border: 1px solid var(--border-subtle);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--transition-smooth);
+      z-index: 50;
+    }
+
+    .btn-to-top.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .btn-to-top:hover {
+      background-color: var(--accent-primary);
+      color: #030712;
+      transform: translateY(-3px);
+    }
+
+    .search-hl {
+      background-color: rgba(245, 158, 11, 0.4);
+      color: inherit;
+      padding: 0.1rem 0.25rem;
+      border-radius: 2px;
+      font-weight: bold;
+    }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 12mm 10mm;
+      }
+
+      body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        font-size: 10.5pt !important;
+      }
+
+      .app-header,
+      .nav-tabs-wrapper,
+      .reading-progress-track,
+      .btn-to-top,
+      .copy-btn,
+      .toast-box,
+      .controls-group {
+        display: none !important;
+      }
+
+      .main-container {
+        padding: 0 !important;
+        max-width: 100% !important;
+      }
+
+      .panel {
+        display: block !important;
+        opacity: 1 !important;
+        transform: none !important;
+        page-break-after: auto !important;
+        margin-bottom: 2rem !important;
+      }
+
+      .hero-svg-mount {
+        display: block !important;
+        background: #ffffff !important;
+        border: 1px solid #cccccc !important;
+        box-shadow: none !important;
+        page-break-inside: avoid !important;
+      }
+
+      .card, .action-step, .author-card {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #cccccc !important;
+        box-shadow: none !important;
+        page-break-inside: avoid !important;
+      }
+
+      pre, table {
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        border: 1px solid #cccccc !important;
+        background: #f8fafc !important;
+        color: #000000 !important;
+      }
+
+      th {
+        background-color: #e2e8f0 !important;
+        color: #000000 !important;
+      }
+
+      details {
+        border: 1px solid #cccccc !important;
+        background: #ffffff !important;
+      }
+
+      details > summary::after {
+        display: none !important;
+      }
+
+      .details-content {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Template maestro SVG de animación SMIL: extraído y montado dinámicamente con IDs únicos -->
+  <svg id="svgHeroSource" style="display:none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 260">
+    <defs>
+      <linearGradient id="gBg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#0a192f"/>
+        <stop offset="50%" stop-color="#0f172a"/>
+        <stop offset="100%" stop-color="#030712"/>
+      </linearGradient>
+      <linearGradient id="gAcc" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#38bdf8"/>
+        <stop offset="100%" stop-color="#2563eb"/>
+      </linearGradient>
+      <linearGradient id="gGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.8"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.1"/>
+      </linearGradient>
+      <filter id="fGlow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="3" result="blur"/>
+        <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+      </filter>
+    </defs>
+    <g id="svgHero">
+      <!-- Fondo y marco de la bóveda -->
+      <rect x="5" y="5" width="830" height="250" rx="14" fill="url(#gBg)" stroke="#1e3a5f" stroke-width="2"/>
+      
+      <!-- Cuadrícula técnica de fondo -->
+      <path d="M 40 20 L 40 240 M 120 20 L 120 240 M 200 20 L 200 240 M 280 20 L 280 240 M 360 20 L 360 240 M 440 20 L 440 240 M 520 20 L 520 240 M 600 20 L 600 240 M 680 20 L 680 240 M 760 20 L 760 240" stroke="#1e293b" stroke-width="0.75" stroke-dasharray="3,3"/>
+      <path d="M 20 60 L 820 60 M 20 130 L 820 130 M 20 200 L 820 200" stroke="#1e293b" stroke-width="0.75" stroke-dasharray="3,3"/>
+
+      <!-- NODO FUENTE 1: YouTube / Ingesta -->
+      <g transform="translate(60, 45)">
+        <rect x="0" y="0" width="130" height="52" rx="8" fill="#1e293b" stroke="#f43f5e" stroke-width="1.5"/>
+        <circle cx="22" cy="26" r="12" fill="#f43f5e"/>
+        <polygon points="19,20 28,26 19,32" fill="#ffffff"/>
+        <text x="42" y="24" fill="#ffffff" font-size="11" font-weight="bold" font-family="sans-serif">YOUTUBE</text>
+        <text x="42" y="38" fill="#94a3b8" font-size="9" font-family="sans-serif">yt-dlp auto</text>
+      </g>
+
+      <!-- NODO FUENTE 2: Reuniones / Whisper -->
+      <g transform="translate(60, 105)">
+        <rect x="0" y="0" width="130" height="52" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="1.5"/>
+        <circle cx="22" cy="26" r="12" fill="#10b981"/>
+        <!-- Icono Micrófono -->
+        <rect x="19" y="18" width="6" height="10" rx="3" fill="#ffffff"/>
+        <path d="M 16 23 C 16 29 28 29 28 23" stroke="#ffffff" stroke-width="1.5" fill="none"/>
+        <line x1="22" y1="29" x2="22" y2="34" stroke="#ffffff" stroke-width="1.5"/>
+        <text x="42" y="24" fill="#ffffff" font-size="11" font-weight="bold" font-family="sans-serif">REUNIONES</text>
+        <text x="42" y="38" fill="#94a3b8" font-size="9" font-family="sans-serif">Whisper / VTT</text>
+      </g>
+
+      <!-- NODO FUENTE 3: Documentos .md -->
+      <g transform="translate(60, 165)">
+        <rect x="0" y="0" width="130" height="52" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>
+        <circle cx="22" cy="26" r="12" fill="#38bdf8"/>
+        <!-- Icono Documento -->
+        <polygon points="17,17 24,17 27,20 27,33 17,33" fill="#ffffff"/>
+        <text x="42" y="24" fill="#ffffff" font-size="11" font-weight="bold" font-family="sans-serif">NOTAS & DOCS</text>
+        <text x="42" y="38" fill="#94a3b8" font-size="9" font-family="sans-serif">Markdown plano</text>
+      </g>
+
+      <!-- Canales de flujo de datos hacia la Bóveda -->
+      <path d="M 190 71 L 280 120" stroke="#f43f5e" stroke-width="2" stroke-dasharray="4,4"/>
+      <path d="M 190 131 L 280 131" stroke="#10b981" stroke-width="2" stroke-dasharray="4,4"/>
+      <path d="M 190 191 L 280 142" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4,4"/>
+
+      <!-- Paquetes de datos animados hacia el centro -->
+      <circle cx="190" cy="71" r="3.5" fill="#f43f5e">
+        <animate attributeName="cx" values="190;280" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="71;120" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="190" cy="131" r="3.5" fill="#10b981">
+        <animate attributeName="cx" values="190;280" dur="1.7s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="190" cy="191" r="3.5" fill="#38bdf8">
+        <animate attributeName="cx" values="190;280" dur="2.3s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="191;142" dur="2.3s" repeatCount="indefinite"/>
+      </circle>
+
+      <!-- NÚCLEO CENTRAL: BÓVEDA + SQLite FTS5 -->
+      <g transform="translate(280, 50)">
+        <rect x="0" y="0" width="230" height="160" rx="12" fill="#0f172a" stroke="url(#gAcc)" stroke-width="2"/>
+        <rect x="10" y="10" width="210" height="28" rx="6" fill="#1e3a5f"/>
+        <text x="115" y="28" fill="#38bdf8" font-size="12" font-weight="900" text-anchor="middle" font-family="sans-serif">BÓVEDA DE CONOCIMIENTO</text>
+        
+        <!-- Disco índice SQLite FTS5 giratorio -->
+        <g transform="translate(115, 88)">
+          <circle cx="0" cy="0" r="34" fill="#030712" stroke="#38bdf8" stroke-width="1.5"/>
+          <circle cx="0" cy="0" r="24" fill="none" stroke="#2563eb" stroke-width="1" stroke-dasharray="5,3">
+            <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="8s" repeatCount="indefinite"/>
+          </circle>
+          <text x="0" y="4" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle" font-family="sans-serif">SQLite FTS5</text>
+          <text x="0" y="15" fill="#10b981" font-size="7.5" text-anchor="middle" font-family="sans-serif">&lt; 2 seg</text>
+        </g>
+        
+        <!-- Carpetas activas -->
+        <text x="25" y="145" fill="#94a3b8" font-size="9.5" font-family="monospace">cerebro/raw/</text>
+        <text x="140" y="145" fill="#38bdf8" font-size="9.5" font-family="monospace">config.py</text>
+      </g>
+
+      <!-- Canal Bóveda -> Operador Claude Code -->
+      <path d="M 510 130 L 600 130" stroke="#38bdf8" stroke-width="3" filter="url(#fGlow)"/>
+      <polygon points="595,125 605,130 595,135" fill="#38bdf8"/>
+
+      <!-- Paquete de respuesta rápida -->
+      <circle cx="515" cy="130" r="4.5" fill="#38bdf8">
+        <animate attributeName="cx" values="510;600" dur="1.2s" repeatCount="indefinite"/>
+      </circle>
+
+      <!-- NODO DERECHA: CLAUDE CODE (Interfaz Operativa) -->
+      <g transform="translate(600, 45)">
+        <rect x="0" y="0" width="180" height="170" rx="12" fill="#0f172a" stroke="#10b981" stroke-width="2"/>
+        <rect x="0" y="0" width="180" height="28" rx="12" fill="#1e293b"/>
+        <text x="90" y="18" fill="#10b981" font-size="11" font-weight="bold" text-anchor="middle" font-family="sans-serif">CLAUDE CODE CLI</text>
+        
+        <!-- Terminal interactiva simulada -->
+        <rect x="12" y="38" width="156" height="118" rx="6" fill="#030712"/>
+        <text x="20" y="55" fill="#38bdf8" font-size="8.5" font-family="monospace">&gt; Poné en marcha...</text>
+        <text x="20" y="72" fill="#94a3b8" font-size="8.5" font-family="monospace">Leyendo CLAUDE.md</text>
+        <text x="20" y="89" fill="#10b981" font-size="8.5" font-family="monospace">✓ 5 videos bajados</text>
+        <text x="20" y="106" fill="#f59e0b" font-size="8.5" font-family="monospace">✓ Búsqueda FTS5 ok</text>
+        <text x="20" y="125" fill="#ffffff" font-size="8.5" font-weight="bold" font-family="monospace">&gt; "¿Qué dijimos...?"</text>
+        <text x="20" y="142" fill="#38bdf8" font-size="7.5" font-family="monospace">Cita: raw/reunion-1</text>
+        <!-- Cursor parpadeante -->
+        <rect x="125" y="117" width="5" height="10" fill="#38bdf8">
+          <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite"/>
+        </rect>
+      </g>
+    </g>
+  </svg>
+
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-group">
+        <span class="brand-badge">SISTEMA IA</span>
+        <h1 class="brand-title">Kit Bóveda + Sistema Operativo</h1>
+      </div>
+
+      <div class="controls-group">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="globalSearch" class="search-input" placeholder="Buscar en el tutorial..." aria-label="Buscar contenidos">
+        </div>
+
+        <button type="button" class="btn-tool" id="btnZoomOut" title="Reducir texto">A−</button>
+        <button type="button" class="btn-tool" id="btnZoomIn" title="Aumentar texto">A+</button>
+        <button type="button" class="btn-tool" id="btnThemeToggle" title="Modo claro/oscuro">🌓</button>
+        <button type="button" class="btn-tool" id="btnPrintPdf" title="Imprimir o guardar en PDF">🖨️ PDF</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="nav-tabs-wrapper" aria-label="Secciones del tutorial">
+    <ul class="nav-tabs" role="tablist">
+      <li role="presentation"><button class="tab-btn active" role="tab" aria-selected="true" data-target="p-inicio">1. INICIO</button></li>
+      <li role="presentation"><button class="tab-btn" role="tab" aria-selected="false" data-target="p-conceptos">2. CONCEPTOS</button></li>
+      <li role="presentation"><button class="tab-btn" role="tab" aria-selected="false" data-target="p-procedimiento">3. PROCEDIMIENTO</button></li>
+      <li role="presentation"><button class="tab-btn" role="tab" aria-selected="false" data-target="p-practica">4. PRÁCTICA</button></li>
+      <li role="presentation"><button class="tab-btn" role="tab" aria-selected="false" data-target="p-errores">5. ERRORES</button></li>
+      <li role="presentation"><button class="tab-btn" role="tab" aria-selected="false" data-target="p-resumen">6. RESUMEN</button></li>
+      <li role="presentation"><button class="tab-btn" role="tab" aria-selected="false" data-target="p-fuentes">7. FUENTES</button></li>
+      <li role="presentation"><button class="tab-btn" role="tab" aria-selected="false" data-target="p-creditos">8. CRÉDITOS</button></li>
+    </ul>
+  </nav>
+
+  <div class="reading-progress-track">
+    <div class="reading-progress-bar" id="progressBar"></div>
+  </div>
+
+  <main class="main-container">
+
+    <!-- ========================================================================= -->
+    <!-- PANEL 1: INICIO                                                           -->
+    <!-- ========================================================================= -->
+    <section id="p-inicio" class="panel active" role="tabpanel">
+      <!-- SVG Animado Superior (Montaje Dinámico) -->
+      <div class="hero-svg-mount" data-svg-hero="true" role="img" aria-label="Arquitectura animada de la Bóveda de Conocimiento con Claude Code y SQLite FTS5"></div>
+      <p class="hero-caption">Diagrama de flujo interactivo: Ingesta de fuentes → Bóveda local en Markdown → SQLite FTS5 (&lt; 2s) → Claude Code.</p>
+
+      <div class="card">
+        <h2 class="card-title">🚀 Bienvenido al Kit Bóveda + Sistema Operativo de IA</h2>
+        <p>Este tutorial práctico te guiará paso a paso para construir un <strong>segundo cerebro empresarial y sistema operativo autónomo</strong>. Aprenderás a centralizar todo lo que dices y decides en llamadas, videos de YouTube y documentos, haciéndolo buscable en menos de 2 segundos de forma 100% local, privada y económica.</p>
+      </div>
+
+      <div class="step-details-grid">
+        <div class="card">
+          <span class="badge badge-blue">¿Qué vas a construir?</span>
+          <h3 style="margin: 0.5rem 0; font-size: 1.05rem;">Tu Bóveda de Conocimiento</h3>
+          <p style="font-size: 0.88rem; color: var(--text-muted);">Un almacén en archivos Markdown ordenados, indexados por un motor SQLite FTS5 de alta velocidad, operado por Claude Code desde tu terminal.</p>
+        </div>
+
+        <div class="card">
+          <span class="badge badge-green">¿Qué problema resuelve?</span>
+          <h3 style="margin: 0.5rem 0; font-size: 1.05rem;">El olvido y la dispersión</h3>
+          <p style="font-size: 0.88rem; color: var(--text-muted);">Elimina la pérdida de tiempo buscando qué cliente prometió qué, cómo resolviste un proceso o qué dijiste en un video hace 6 meses.</p>
+        </div>
+
+        <div class="card">
+          <span class="badge badge-amber">Requisitos necesarios</span>
+          <h3 style="margin: 0.5rem 0; font-size: 1.05rem;">Solo 3 herramientas</h3>
+          <p style="font-size: 0.88rem; color: var(--text-muted);">1) Python 3 (gratis). 2) Node.js LTS (para instalar Claude Code). 3) Tu cuenta de Claude (plan Pro recomendado). <strong>No necesitas saber programar</strong>.</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 1.5rem;">
+        <h3 class="card-title">📖 Cómo utilizar este tutorial paso a paso</h3>
+        <p>Sigue la regla fundamental: <strong>EXPLICAR → HACER → COMPROBAR → CONTINUAR</strong>.</p>
+        <ul style="margin: 0.75rem 0 0 1.25rem; font-size: 0.95rem;">
+          <li>Avanza por las pestañas en orden secuencial.</li>
+          <li>Utiliza los botones de copiar en cada bloque de código y pega exactamente lo indicado.</li>
+          <li>Revisa las comprobaciones de cada paso antes de saltar al siguiente.</li>
+          <li>Si surge un error, consulta la pestaña de <strong>ERRORES</strong> o pégale el mensaje directo a Claude Code.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- PANEL 2: CONCEPTOS                                                        -->
+    <!-- ========================================================================= -->
+    <section id="p-conceptos" class="panel" role="tabpanel">
+      <div class="card">
+        <h2 class="card-title">💡 Conceptos Clave explicados para Principiantes</h2>
+        <p>No des nada por supuesto. Antes de teclear, comprende qué piezas forman la máquina y por qué cada una está ahí.</p>
+      </div>
+
+      <!-- Concepto 1 -->
+      <div class="card">
+        <span class="badge badge-blue">Pilar 1</span>
+        <h3 style="margin: 0.5rem 0;">1. ¿Qué es la Bóveda y por qué usa Markdown plano?</h3>
+        <p><strong>Qué es en castellano sencillo:</strong> Una carpeta en tu disco rígido repleta de archivos de texto simple (con extensión <code>.md</code>). Cada reunión, cada video y cada proceso es un archivo individual.</p>
+        <p><strong>Por qué importa:</strong> Las bases de datos propietarias (Notion, Google Docs, bases vectoriales en la nube) son vulnerables a cortes de servicio, aumentos de precio y cambios de formato. El texto plano es tuyo para siempre, se respalda con Google Drive, OneDrive o Git, y se puede abrir con cualquier editor (como Obsidian).</p>
+      </div>
+
+      <!-- Concepto 2 -->
+      <div class="card">
+        <span class="badge badge-green">Pilar 2</span>
+        <h3 style="margin: 0.5rem 0;">2. ¿Por qué SQLite FTS5 y no Embeddings ni APIs complejas?</h3>
+        <p><strong>Qué es:</strong> <code>SQLite</code> es un motor de base de datos ultraligero que viene preinstalado en Python. <code>FTS5</code> significa <em>Full-Text Search 5</em>: un índice de búsqueda por palabras clave ponderadas mediante el algoritmo matemático BM25.</p>
+        <p><strong>Ventajas radicales:</strong></p>
+        <ul style="margin: 0.5rem 0 0 1.25rem; font-size: 0.9rem;">
+          <li><strong>Cero costo:</strong> No pagas tokens a OpenAI o Pinecone por buscar tus propios datos.</li>
+          <li><strong>Velocidad extrema:</strong> Devuelve resultados en menos de 2 segundos en tu propio procesador.</li>
+          <li><strong>Sin internet:</strong> Busca incluso si te quedas sin conexión.</li>
+          <li><strong>Normalización de tildes:</strong> Con <code>remove_diacritics 2</code>, buscar "metodo" encontrará automáticamente "método".</li>
+        </ul>
+      </div>
+
+      <!-- Concepto 3 -->
+      <div class="card">
+        <span class="badge badge-amber">Pilar 3</span>
+        <h3 style="margin: 0.5rem 0;">3. ¿Qué es Claude Code y qué rol cumple el archivo CLAUDE.md?</h3>
+        <p><strong>Claude Code:</strong> Es una herramienta de terminal desarrollada por Anthropic que permite que Claude lea tus archivos locales, ejecute comandos permitidos y edite código en tiempo real.</p>
+        <p><strong>CLAUDE.md:</strong> <em>La memoria inmutable del proyecto</em>. Es el archivo que Claude Code lee automáticamente cada vez que arranca. Sin este archivo, la IA se olvida de la arquitectura, inventa carpetas y al cabo de dos semanas genera un desorden inmanejable.</p>
+      </div>
+
+      <!-- Concepto 4: De Bóveda a Sistema Operativo -->
+      <div class="card">
+        <span class="badge badge-rose">Pilar 4</span>
+        <h3 style="margin: 0.5rem 0;">4. ¿De Segundo Cerebro a Sistema Operativo de Negocios?</h3>
+        <p>El <strong>segundo cerebro</strong> es pasivo: guarda lo que sabes y te permite recordarlo. El <strong>sistema operativo</strong> es activo: se conecta al resto de tus herramientas (correo, YouTube, plataformas de cobro, navegadores) para automatizar acciones y construir pantallas de control (dashboards) personalizadas.</p>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- PANEL 3: PROCEDIMIENTO                                                    -->
+    <!-- ========================================================================= -->
+    <section id="p-procedimiento" class="panel" role="tabpanel">
+      <div class="card">
+        <h2 class="card-title">🛠️ Construcción Paso a Paso del Sistema</h2>
+        <p>Sigue cada acción en orden. No te saltes pasos. Si algo falla, Claude Code lo resolverá por ti.</p>
+      </div>
+
+      <!-- PASO 1 -->
+      <div class="action-step">
+        <div class="step-header">
+          <span>Paso 1: Instalar Python 3 con soporte PATH</span>
+          <span class="step-tag">Acción 1</span>
+        </div>
+        <p>Python es el motor con el que corren los programas de ingesta y búsqueda local.</p>
+        
+        <div class="step-details-grid">
+          <div class="detail-pill">
+            <strong>Windows</strong>
+            Entra a <a href="https://www.python.org/downloads/" target="_blank" rel="noopener" style="color:var(--accent-primary);">python.org/downloads</a> y descarga el instalador. Al ejecutarlo, <strong>MARCA OBLIGATORIAMENTE</strong> la casilla <em>"Add Python to PATH"</em>.
+          </div>
+          <div class="detail-pill">
+            <strong>Mac</strong>
+            Abre Terminal (Cmd + Espacio → "Terminal") y escribe <code>python3 --version</code>. Si te pide instalar las herramientas de desarrollador, acepta.
+          </div>
+        </div>
+
+        <div class="code-container">
+          <div class="code-topbar">
+            <span>Terminal / PowerShell — Comprobar versión</span>
+            <button class="copy-btn" data-copy="python --version">Copiar</button>
+          </div>
+          <pre><code>python --version
+# En Mac usa: python3 --version</code></pre>
+        </div>
+        <p><strong>Comprobación:</strong> La terminal debe responder con un texto similar a <code>Python 3.11.x</code> o superior.</p>
+      </div>
+
+      <!-- PASO 2 -->
+      <div class="action-step">
+        <div class="step-header">
+          <span>Paso 2: Instalar Node.js y Claude Code</span>
+          <span class="step-tag">Acción 2</span>
+        </div>
+        <p>Claude Code requiere Node.js LTS para ejecutarse globalmente en tu terminal.</p>
+        <ol style="margin-left: 1.25rem; font-size: 0.9rem;">
+          <li>Descarga e instala la versión LTS desde <a href="https://nodejs.org" target="_blank" rel="noopener" style="color:var(--accent-primary);">nodejs.org</a> con todos los valores por defecto.</li>
+          <li>Abre una terminal nueva e instala Claude Code con el comando oficial:</li>
+        </ol>
+
+        <div class="code-container">
+          <div class="code-topbar">
+            <span>Terminal / PowerShell — Instalación Claude Code</span>
+            <button class="copy-btn" data-copy="npm install -g @anthropic-ai/claude-code">Copiar</button>
+          </div>
+          <pre><code>npm install -g @anthropic-ai/claude-code</code></pre>
+        </div>
+
+        <div class="code-container">
+          <div class="code-topbar">
+            <span>Terminal / PowerShell — Primer inicio de sesión</span>
+            <button class="copy-btn" data-copy="claude">Copiar</button>
+          </div>
+          <pre><code>claude</code></pre>
+        </div>
+        <p><strong>Comprobación:</strong> Al escribir <code>claude</code> por primera vez, se abrirá tu navegador para autenticar tu cuenta de Anthropic.</p>
+      </div>
+
+      <!-- PASO 3 -->
+      <div class="action-step">
+        <div class="step-header">
+          <span>Paso 3: Instalar yt-dlp y Whisper (Opcional)</span>
+          <span class="step-tag">Acción 3</span>
+        </div>
+        <p>Herramientas para bajar automáticamente transcripciones de videos y audio de reuniones.</p>
+
+        <div class="code-container">
+          <div class="code-topbar">
+            <span>Terminal — Instalar yt-dlp para YouTube</span>
+            <button class="copy-btn" data-copy="python -m pip install yt-dlp">Copiar</button>
+          </div>
+          <pre><code>python -m pip install yt-dlp
+# En Mac: python3 -m pip install yt-dlp</code></pre>
+        </div>
+
+        <details>
+          <summary>🎧 ¿Quieres transcribir audios crudos de reuniones? (faster-whisper)</summary>
+          <div class="details-content">
+            <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:0.5rem;">Si ya utilizas Zoom, Google Meet, Teams o Fathom, <strong>no lo necesitas</strong>: descarga directamente el archivo <code>.vtt</code> o <code>.txt</code> que ellos te entregan. Solo instala Whisper si tienes grabaciones de voz puras (.mp3, .m4a):</p>
+            <div class="code-container">
+              <div class="code-topbar">
+                <span>Terminal — Instalar faster-whisper</span>
+                <button class="copy-btn" data-copy="python -m pip install faster-whisper">Copiar</button>
+              </div>
+              <pre><code>python -m pip install faster-whisper</code></pre>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <!-- PASO 4 -->
+      <div class="action-step">
+        <div class="step-header">
+          <span>Paso 4: Crear la estructura de carpetas de la Bóveda</span>
+          <span class="step-tag">Acción 4</span>
+        </div>
+        <p>Crea tu carpeta maestra (por ejemplo <code>mi-boveda</code>) y organízala con la siguiente estructura exacta:</p>
+
+        <div class="code-container">
+          <div class="code-topbar">
+            <span>Estructura de la carpeta</span>
+          </div>
+          <pre><code>mi-boveda/
+├── CLAUDE.md            ← Memoria y reglas de la IA
+├── boveda/
+│   ├── config.py        ← Configuración única (dueño, canal, marcas)
+│   ├── buscar.py        ← Buscador SQLite FTS5 ultra-rápido (&lt; 2s)
+│   ├── ingesta_youtube.py
+│   ├── ingesta_reunion.py
+│   ├── construir_wiki.py
+│   ├── _index/          ← Base de datos SQLite (se autogenera, no tocar)
+│   └── cerebro/         ← Tu vault (compatible con Obsidian)
+│       ├── raw/
+│       │   ├── youtube/     ← Transcripciones de videos
+│       │   ├── reuniones/   ← Llamadas de clientes y equipo
+│       │   └── documentos/  ← Procesos, decisiones y notas
+│       └── wiki/            ← Índices temáticos generados</code></pre>
+        </div>
+      </div>
+
+      <!-- PASO 5 -->
+      <div class="action-step">
+        <div class="step-header">
+          <span>Paso 5: El archivo maestro CLAUDE.md</span>
+          <span class="step-tag">Acción 5</span>
+        </div>
+        <p>Crea un archivo llamado <code>CLAUDE.md</code> en la raíz de tu carpeta. Este archivo le explica a Claude quién es y cómo debe responderte.</p>
+
+        <div class="code-container">
+          <div class="code-topbar">
+            <span>Archivo: CLAUDE.md</span>
+            <button class="copy-btn" data-copy='# CLAUDE.md — Bóveda de conocimiento del negocio
+Esta carpeta es la bóveda (segundo cerebro) del dueño de este negocio: todo lo que dijo en videos, reuniones y documentos, guardado como archivos Markdown y buscable en segundos con un índice local SQLite FTS5. Vos (Claude Code) sos el operador de la bóveda: la ponés en marcha, cargás contenido, buscás y respondés citando las fuentes.
+
+Sistema creado por Facundo Corengia (Basdonax AI) — facundocorengia.com.
+
+## Reglas al responder con la bóveda
+1. Buscá antes de responder. Cualquier pregunta sobre "qué se dijo", "qué se decidió" o "qué prometimos" se responde corriendo python boveda/buscar.py, nunca de memoria.
+2. Citá siempre el archivo fuente (ej: raw/reuniones/2026-01-20_reunion-cliente.md).
+3. No inventes. Si la bóveda no tiene el dato, decilo textualmente: "no está en la bóveda".
+4. No edites los archivos de raw/ salvo pedido explícito del dueño: son el registro histórico.
+5. Privacidad: Nunca guardes contraseñas, tokens o claves dentro de la bóveda.'>Copiar CLAUDE.md</button>
+          </div>
+          <pre><code># CLAUDE.md — Bóveda de conocimiento del negocio
+Esta carpeta es la bóveda (segundo cerebro) del dueño de este negocio: todo lo que dijo en videos, reuniones y documentos, guardado como archivos Markdown y buscable en segundos con un índice local SQLite FTS5. Vos (Claude Code) sos el operador de la bóveda: la ponés en marcha, cargás contenido, buscás y respondés citando las fuentes.
+
+Sistema creado por Facundo Corengia (Basdonax AI) — facundocorengia.com.
+
+## Reglas al responder con la bóveda
+1. Buscá antes de responder. Cualquier pregunta sobre "qué se dijo", "qué se decidió" o "qué prometimos" se responde corriendo python boveda/buscar.py, nunca de memoria.
+2. Citá siempre el archivo fuente (ej: raw/reuniones/2026-01-20_reunion-cliente.md).
+3. No inventes. Si la bóveda no tiene el dato, decilo textualmente: "no está en la bóveda".
+4. No edites los archivos de raw/ salvo pedido explícito del dueño: son el registro histórico.
+5. Privacidad: Nunca guardes contraseñas, tokens o claves dentro de la bóveda.</code></pre>
+        </div>
+      </div>
+
+      <!-- PASO 6 -->
+      <div class="action-step">
+        <div class="step-header">
+          <span>Paso 6: Puesta en marcha inicial</span>
+          <span class="step-tag">Acción 6</span>
+        </div>
+        <p>Abre la terminal <strong>dentro de tu carpeta</strong> (en Windows: haz clic en la barra de direcciones del explorador, escribe <code>powershell</code> y pulsa Enter). Ejecuta Claude y dile la frase de arranque:</p>
+
+        <div class="code-container">
+          <div class="code-topbar">
+            <span>Terminal — Iniciar y ordenar el arranque</span>
+            <button class="copy-btn" data-copy="claude">Copiar</button>
+          </div>
+          <pre><code>claude</code></pre>
+        </div>
+
+        <div class="code-container">
+          <div class="code-topbar">
+            <span>Prompt de inicio para pegar en Claude Code</span>
+            <button class="copy-btn" data-copy="poné en marcha mi bóveda">Copiar</button>
+          </div>
+          <pre><code>poné en marcha mi bóveda</code></pre>
+        </div>
+        <p><strong>Comprobación:</strong> Claude Code te hará 3 preguntas sencillas: tu nombre y correo, si tienes canal de YouTube y el idioma de tu contenido. Luego configurará automáticamente <code>boveda/config.py</code> e iniciará la primera prueba de búsqueda.</p>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- PANEL 4: PRÁCTICA                                                         -->
+    <!-- ========================================================================= -->
+    <section id="p-practica" class="panel" role="tabpanel">
+      <div class="card">
+        <h2 class="card-title">🧪 Práctica y Prompts Maestros del Sistema Operativo</h2>
+        <p>Una vez montada la Bóveda, es hora de convertirla en tu <strong>Sistema Operativo</strong>. Utiliza estos prompts exactos para operar y conectar herramientas.</p>
+      </div>
+
+      <!-- Módulo de Búsqueda Forense -->
+      <div class="card">
+        <span class="badge badge-blue">Caso 1</span>
+        <h3 style="margin: 0.5rem 0;">Consulta Forense con Citas Exactas</h3>
+        <p>Cuando necesites recordar un compromiso con un cliente, una cifra o una promesa técnica, pregúntale a Claude Code:</p>
+
+        <div class="code-container">
+          <div class="code-topbar">
+            <span>Prompt para Claude Code</span>
+            <button class="copy-btn" data-copy='¿Qué le prometimos al cliente Acme Corp respecto al plazo de entrega y los precios de mantenimiento? Buscá en la bóveda y citame las reuniones exactas donde lo dije.'>Copiar Prompt</button>
+          </div>
+          <pre><code>¿Qué le prometimos al cliente Acme Corp respecto al plazo de entrega y los precios de mantenimiento? Buscá en la bóveda y citame las reuniones exactas donde lo dije.</code></pre>
+        </div>
+        <p><strong>Resultado esperado:</strong> Claude Code no inventará nada. Ejecutará <code>python boveda/buscar.py "Acme Corp plazo"</code> y te devolverá los párrafos exactos citando el archivo <code>cerebro/raw/reuniones/2026-03-12_reunion-acme.md</code>.</p>
+      </div>
+
+      <!-- Módulo PASO 8: Conectar cualquier herramienta -->
+      <div class="card">
+        <span class="badge badge-amber">Caso 2 · Paso 8 Oficial</span>
+        <h3 style="margin: 0.5rem 0;">El Molde para Conectar Cualquier Herramienta</h3>
+        <p>Este es el prompt maestro para enchufar CRMs, pasarelas de pago (Stripe, Mercado Pago) o plataformas externas a tu sistema operativo sin que la IA invente endpoints inexistentes.</p>
+
+        <div class="code-container">
+          <div class="code-topbar">
+            <span>Prompt Molde de Conexión Universal</span>
+            <button class="copy-btn" data-copy='Quiero conectar [NOMBRE DE LA HERRAMIENTA] a mi sistema.
+Antes de escribir código:
+1. Fijate si tiene API pública y documentación. Si tiene, decíme qué datos puedo sacar y qué necesito para autenticarme.
+2. Si no tiene API, o si la parte que necesito no está en la API, decímelo derecho. No inventes endpoints que no existen: prefiero saber que no se puede antes que descubrirlo cuando el dato está mal.
+3. Si no hay API, evaluá las otras vías, en este orden: un feed público, un archivo que yo exporte a mano, o automatizar el navegador entrando a la pantalla como entro yo.'>Copiar Molde</button>
+          </div>
+          <pre><code>Quiero conectar [NOMBRE DE LA HERRAMIENTA] a mi sistema.
+Antes de escribir código:
+1. Fijate si tiene API pública y documentación. Si tiene, decíme qué datos puedo sacar y qué necesito para autenticarme.
+2. Si no tiene API, o si la parte que necesito no está en la API, decímelo derecho. No inventes endpoints que no existen: prefiero saber que no se puede antes que descubrirlo cuando el dato está mal.
+3. Si no hay API, evaluá las otras vías, en este orden: un feed público, un archivo que yo exporte a mano, o automatizar el navegador entrando a la pantalla como entro yo.</code></pre>
+        </div>
+      </div>
+
+      <!-- Módulo Dashboard Web -->
+      <div class="card">
+        <span class="badge badge-green">Caso 3</span>
+        <h3 style="margin: 0.5rem 0;">Construir un Dashboard Web Local para tu Negocio</h3>
+        <p>¿Quieres una pantalla única donde ver tus finanzas, operaciones o métricas de clientes sin pagar un SaaS externo? Pídeselo a Claude Code con este estándar estricto:</p>
+
+        <div class="code-container">
+          <div class="code-topbar">
+            <span>Prompt Dashboard Web Autónomo</span>
+            <button class="copy-btn" data-copy='Construye una aplicación web local de una sola pantalla para visualizar los datos de mi negocio.
+Requisitos técnicos obligatorios:
+1. Un solo archivo HTML limpio con CSS y JavaScript inline, sin librerías externas pesadas.
+2. Los datos se leen desde archivos locales en la carpeta /datos/.
+3. Pantalla de propósito único: gráfico visual arriba y tabla detallada abajo con importes y fechas.
+4. Debe permitir filtrar por tipo de operación y abrir el detalle de cada cliente.
+5. Todo en español claro y adaptado a dispositivos móviles.'>Copiar Prompt Dashboard</button>
+          </div>
+          <pre><code>Construye una aplicación web local de una sola pantalla para visualizar los datos de mi negocio.
+Requisitos técnicos obligatorios:
+1. Un solo archivo HTML limpio con CSS y JavaScript inline, sin librerías externas pesadas.
+2. Los datos se leen desde archivos locales en la carpeta /datos/.
+3. Pantalla de propósito único: gráfico visual arriba y tabla detallada abajo con importes y fechas.
+4. Debe permitir filtrar por tipo de operación y abrir el detalle de cada cliente.
+5. Todo en español claro y adaptado a dispositivos móviles.</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- PANEL 5: ERRORES                                                          -->
+    <!-- ========================================================================= -->
+    <section id="p-errores" class="panel" role="tabpanel">
+      <div class="card">
+        <h2 class="card-title">⚠️ Errores Frecuentes y Solución Rápida</h2>
+        <p>Problemas típicos documentados en el despliegue del sistema y cómo solucionarlos en 30 segundos.</p>
+      </div>
+
+      <div class="card">
+        <h3 style="color: var(--accent-rose); font-size: 1.1rem;">❌ "python" no se reconoce como un comando interno o externo</h3>
+        <p><strong>Causa:</strong> Instalaste Python en Windows pero no marcaste la casilla <em>"Add Python to PATH"</em>.</p>
+        <p><strong>Solución:</strong> Vuelve a abrir el instalador de Python, selecciona "Modify" o reinstálalo marcando la casilla de PATH al inicio. Reinicia PowerShell.</p>
+      </div>
+
+      <div class="card">
+        <h3 style="color: var(--accent-rose); font-size: 1.1rem;">❌ Caracteres extraños o rotos al buscar en PowerShell (tildes / ñ)</h3>
+        <p><strong>Causa:</strong> La codificación por defecto de la consola de Windows no está sincronizada con UTF-8.</p>
+        <p><strong>Solución:</strong> Ejecuta esta variable de entorno en tu terminal antes de usar el buscador:</p>
+        <div class="code-container">
+          <div class="code-topbar">
+            <span>PowerShell — Forzar UTF-8</span>
+            <button class="copy-btn" data-copy='$env:PYTHONIOENCODING = "utf-8"'>Copiar</button>
+          </div>
+          <pre><code>$env:PYTHONIOENCODING = "utf-8"</code></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="color: var(--accent-rose); font-size: 1.1rem;">❌ El índice SQLite parece viejo o no encuentra archivos recién creados</h3>
+        <p><strong>Causa:</strong> Agregaste un archivo <code>.md</code> manualmente pero no ejecutaste la reindexación forzada.</p>
+        <p><strong>Solución:</strong> Corre el comando de reindexado manual. Si sigue extraño, borra la carpeta <code>boveda/_index/</code>; se reconstruirá sola sin perder un solo dato:</p>
+        <div class="code-container">
+          <div class="code-topbar">
+            <span>Terminal — Reconstruir índice SQLite</span>
+            <button class="copy-btn" data-copy="python boveda/buscar.py --reindex">Copiar</button>
+          </div>
+          <pre><code>python boveda/buscar.py --reindex</code></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="color: var(--accent-rose); font-size: 1.1rem;">❌ Claude Code empieza a inventar formatos o desordenar carpetas</h3>
+        <p><strong>Causa:</strong> Eliminaste o modificaste sin querer el archivo <code>CLAUDE.md</code> en la raíz.</p>
+        <p><strong>Solución:</strong> Restaura el <code>CLAUDE.md</code> oficial (disponible en la pestaña PROCEDIMIENTO). Recuerda: <em>CLAUDE.md es la memoria inmutable del proyecto</em>.</p>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- PANEL 6: RESUMEN                                                          -->
+    <!-- ========================================================================= -->
+    <section id="p-resumen" class="panel" role="tabpanel">
+      <div class="card">
+        <h2 class="card-title">📊 Resumen de Comandos y Checklist de Aprendizaje</h2>
+        <p>Ten a mano esta tabla de comandos diarios y valida que tienes el sistema 100% operativo.</p>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Tarea Operativa</th>
+              <th>Comando Directo</th>
+              <th>Frecuencia</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Búsqueda global</strong></td>
+              <td><code>python boveda/buscar.py "tema"</code></td>
+              <td>Cada vez que tengas dudas</td>
+            </tr>
+            <tr>
+              <td><strong>Solo lo dicho por ti</strong></td>
+              <td><code>python boveda/buscar.py "precio" --solo-yo</code></td>
+              <td>En llamadas de venta o compromisos</td>
+            </tr>
+            <tr>
+              <td><strong>Bajar videos nuevos</strong></td>
+              <td><code>python boveda/ingesta_youtube.py</code></td>
+              <td>Cada vez que publiques en YouTube</td>
+            </tr>
+            <tr>
+              <td><strong>Cargar reunión (texto/VTT)</strong></td>
+              <td><code>python boveda/ingesta_reunion.py "ruta.vtt" --titulo "Cliente"</code></td>
+              <td>Al terminar una llamada</td>
+            </tr>
+            <tr>
+              <td><strong>Regenerar la Wiki</strong></td>
+              <td><code>python boveda/construir_wiki.py</code></td>
+              <td>Mensual o tras subir 50+ archivos</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">✅ Lista de Verificación de tu Bóveda (Guarda tu progreso)</h3>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">Tus avances se guardan automáticamente en tu navegador.</p>
+        
+        <ul class="checklist-group" id="userChecklist">
+          <li class="checklist-item">
+            <input type="checkbox" id="chk1" data-task="task1">
+            <label for="chk1"><strong>Paso 1:</strong> Python 3 instalado con la casilla de PATH activada.</label>
+          </li>
+          <li class="checklist-item">
+            <input type="checkbox" id="chk2" data-task="task2">
+            <label for="chk2"><strong>Paso 2:</strong> Node.js instalado y Claude Code funcionando en terminal (<code>claude</code>).</label>
+          </li>
+          <li class="checklist-item">
+            <input type="checkbox" id="chk3" data-task="task3">
+            <label for="chk3"><strong>Paso 3:</strong> <code>yt-dlp</code> instalado con pip para transcripción de YouTube.</label>
+          </li>
+          <li class="checklist-item">
+            <input type="checkbox" id="chk4" data-task="task4">
+            <label for="chk4"><strong>Paso 4:</strong> Carpeta maestra creada con la estructura <code>cerebro/raw/</code> y <code>config.py</code>.</label>
+          </li>
+          <li class="checklist-item">
+            <input type="checkbox" id="chk5" data-task="task5">
+            <label for="chk5"><strong>Paso 5:</strong> Archivo <code>CLAUDE.md</code> pegado en la raíz del proyecto.</label>
+          </li>
+          <li class="checklist-item">
+            <input type="checkbox" id="chk6" data-task="task6">
+            <label for="chk6"><strong>Paso 6:</strong> Primer arranque exitoso con el comando <em>"poné en marcha mi bóveda"</em>.</label>
+          </li>
+          <li class="checklist-item">
+            <input type="checkbox" id="chk7" data-task="task7">
+            <label for="chk7"><strong>Paso 7:</strong> Búsqueda de prueba ejecutada y comprobada en menos de 2 segundos.</label>
+          </li>
+          <li class="checklist-item">
+            <input type="checkbox" id="chk8" data-task="task8">
+            <label for="chk8"><strong>Paso 8:</strong> Carpeta sincronizada en un servicio de respaldo (Drive, OneDrive o Git).</label>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- PANEL 7: FUENTES                                                          -->
+    <!-- ========================================================================= -->
+    <section id="p-fuentes" class="panel" role="tabpanel">
+      <div class="card">
+        <h2 class="card-title">📚 Fuentes Oficiales y Material de Referencia</h2>
+        <p>Toda la arquitectura y procedimientos de este tutorial se basan rigurosamente en las fuentes originales creadas por Facundo Corengia (Basdonax AI).</p>
+      </div>
+
+      <div class="step-details-grid">
+        <div class="card">
+          <span class="badge badge-blue">Documentación Original</span>
+          <h3 style="margin: 0.5rem 0;">Documento Base del Sistema</h3>
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0.75rem;">Guía de arquitectura y prompts de integración del sistema operativo de IA para negocios.</p>
+          <a href="https://docs.google.com/document/d/1DRCnnH-ViDVmpA7fTAZCVvNeWGHeWlWmM03r6BJ7-bs/edit" target="_blank" rel="noopener" style="color:var(--accent-primary); font-weight:bold; font-size:0.85rem;">Ver Google Doc Original ↗</a>
+        </div>
+
+        <div class="card">
+          <span class="badge badge-green">Kit Descargable</span>
+          <h3 style="margin: 0.5rem 0;">Kit Bóveda en Google Drive</h3>
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0.75rem;">Archivos fuente, scripts de ingesta en Python y plantilla de arranque rápido.</p>
+          <a href="https://drive.google.com/uc?export=download&id=1mMsyeQJz5eVVmWPwvxKbvW_EeXSzmK9A" target="_blank" rel="noopener" style="color:var(--accent-primary); font-weight:bold; font-size:0.85rem;">Descargar Archivo ZIP ↗</a>
+        </div>
+
+        <div class="card">
+          <span class="badge badge-amber">Sitio Web Autor Original</span>
+          <h3 style="margin: 0.5rem 0;">Facundo Corengia · Basdonax AI</h3>
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0.75rem;">Recursos para agencias y consultores de inteligencia artificial.</p>
+          <a href="https://facundocorengia.com" target="_blank" rel="noopener" style="color:var(--accent-primary); font-weight:bold; font-size:0.85rem;">Visitar facundocorengia.com ↗</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- PANEL 8: CRÉDITOS                                                         -->
+    <!-- ========================================================================= -->
+    <section id="p-creditos" class="panel" role="tabpanel">
+      <!-- REGLA OBLIGATORIA: SVG Animado ARRIBA DEL TODO de la pestaña Créditos -->
+      <div class="hero-svg-mount" data-svg-hero="true" role="img" aria-label="Arquitectura animada idéntica para la sección de créditos"></div>
+      <p class="hero-caption">Mismo dibujo de arquitectura sincronizado desde la plantilla maestra para la verificación del sistema.</p>
+
+      <div class="author-card">
+        <h2 class="author-name">Rubén Sbarsky</h2>
+        <div class="author-role">Autor del tutorial</div>
+        <p style="max-width: 650px; margin: 0 auto; color: var(--text-muted); font-size: 0.95rem;">
+          Especialista en estructuración pedagógica interactiva, ingeniería de prompts y optimización de sistemas operativos de inteligencia artificial para profesionales independientes y empresas.
+        </p>
+
+        <div class="author-meta-grid">
+          <div class="detail-pill">
+            <strong>Fecha y Hora de Creación (Fija)</strong>
+            <span>06/10/2026 — 07:15:00</span>
+          </div>
+          <div class="detail-pill">
+            <strong>Versión del Archivo</strong>
+            <span>V002 (Edición Maestra Autónoma)</span>
+          </div>
+          <div class="detail-pill">
+            <strong>Tecnología del Documento</strong>
+            <span>HTML5 + CSS + JavaScript Vanilla + SMIL SVG (Zero CDN)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">Acerca de esta Implementación Pedagógica</h3>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">
+          Este manual ha sido compilado en un único archivo ejecutable sin dependencias externas. Se diseñó bajo el principio <em>"Explicar → Hacer → Comprobar → Continuar"</em>, garantizando que el estudiante pueda desplegar su propia infraestructura local de inteligencia artificial sin depender de suscripciones costosas ni perder la soberanía sobre sus datos.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <button class="btn-to-top" id="btnToTop" title="Volver arriba">↑</button>
+  <div class="toast-box" id="toastNotification">¡Texto copiado al portapapeles!</div>
+
+  <script>
+    var seq = 0;
+    var TPL = null;
+    var imgMode = false;
+    var currentFontSize = 16;
+
+    function template() {
+      if (TPL) return TPL;
+      var src = document.getElementById('svgHeroSource');
+      if (!src) return { defs: '', art: '' };
+      
+      var defsElem = src.querySelector('defs');
+      var artElem = src.querySelector('#svgHero');
+      
+      var d = defsElem ? defsElem.cloneNode(true) : document.createElementNS("http://www.w3.org/2000/svg", "defs");
+      var g = artElem ? artElem.cloneNode(true) : document.createElementNS("http://www.w3.org/2000/svg", "g");
+      
+      g.removeAttribute('id');
+      TPL = { defs: d.innerHTML, art: g.outerHTML };
+      
+      // Eliminar el SVG fuente para que no continúe animándose oculto en memoria
+      if (src.parentNode) {
+        src.parentNode.removeChild(src);
+      }
+      return TPL;
+    }
+
+    function markup(uid) {
+      var t = template();
+      var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 260" width="100%" height="auto" aria-hidden="true"><defs>' + t.defs + '</defs>' + t.art + '</svg>';
+      
+      // Reemplazo estricto de IDs para evitar colisiones entre pestañas
+      var idList = ['gBg', 'gAcc', 'gGlow', 'fGlow'];
+      idList.forEach(function(id) {
+        s = s.split('id="' + id + '"').join('id="' + id + '-' + uid + '"')
+             .split('url(#' + id + ')').join('url(#' + id + '-' + uid + ')');
+      });
+      return s;
+    }
+
+    function mountOne(m) {
+      if (!m) return;
+      m.textContent = '';
+      
+      if (imgMode) {
+        var im = new Image();
+        im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(markup('img' + (++seq)));
+        im.alt = "Diagrama de arquitectura del sistema";
+        m.appendChild(im);
+        return;
+      }
+      
+      m.innerHTML = markup('h' + (++seq));
+      var svg = m.querySelector('svg');
+      if (!svg) return;
+      
+      try {
+        svg.setCurrentTime(0);
+        if (typeof svg.unpauseAnimations === 'function') {
+          svg.unpauseAnimations();
+        }
+      } catch (err) {}
+
+      // Plan B: verificación tras 1600ms si el reloj SVG no avanza
+      var t0 = 0;
+      try { t0 = svg.getCurrentTime(); } catch (e) {}
+      
+      setTimeout(function() {
+        if (document.hidden || m.querySelector('svg') !== svg) return;
+        var t1 = t0;
+        try { t1 = svg.getCurrentTime(); } catch (e) {}
+        if (svg.getBoundingClientRect().height > 0 && (t1 - t0 < 0.25)) {
+          imgMode = true;
+          mountOne(m);
+        }
+      }, 1600);
+    }
+
+    function mountActive() {
+      var activeContainers = document.querySelectorAll('.panel.active [data-svg-hero]');
+      activeContainers.forEach(function(m) {
+        mountOne(m);
+      });
+    }
+
+    setInterval(function() {
+      if (document.hidden) return;
+      document.querySelectorAll('.panel.active [data-svg-hero]').forEach(function(m) {
+        if (!m.firstElementChild) {
+          mountOne(m);
+        }
+      });
+    }, 800);
+
+    function activateTab(targetId) {
+      var panels = document.querySelectorAll('.panel');
+      var buttons = document.querySelectorAll('.tab-btn');
+      
+      panels.forEach(function(p) {
+        p.classList.remove('active');
+      });
+      buttons.forEach(function(b) {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+
+      var targetPanel = document.getElementById(targetId);
+      var targetButton = document.querySelector('.tab-btn[data-target="' + targetId + '"]');
+
+      if (targetPanel) {
+        targetPanel.classList.add('active');
+      }
+      if (targetButton) {
+        targetButton.classList.add('active');
+        targetButton.setAttribute('aria-selected', 'true');
+      }
+
+      // Montar SVG inmediatamente tras marcar panel como activo
+      mountActive();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showToast(msg) {
+      var toast = document.getElementById('toastNotification');
+      if (!toast) return;
+      toast.textContent = msg || '¡Texto copiado al portapapeles!';
+      toast.classList.add('show');
+      setTimeout(function() {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    function copyText(str) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(str).then(function() {
+          showToast('¡Copiado al portapapeles!');
+        }).catch(function() {
+          fallbackCopy(str);
+        });
+      } else {
+        fallbackCopy(str);
+      }
+    }
+
+    function fallbackCopy(str) {
+      var el = document.createElement('textarea');
+      el.value = str;
+      el.setAttribute('readonly', '');
+      el.style.position = 'fixed';
+      el.style.left = '-9999px';
+      document.body.appendChild(el);
+      el.select();
+      try {
+        var ok = document.execCommand('copy');
+        if (ok) showToast('¡Copiado con éxito!');
+      } catch (err) {
+        showToast('Presiona Ctrl+C para copiar');
+      }
+      document.body.removeChild(el);
+    }
+
+    function initChecklist() {
+      var checkboxes = document.querySelectorAll('#userChecklist input[type="checkbox"]');
+      checkboxes.forEach(function(chk) {
+        var key = 'boveda_chk_' + chk.id;
+        var saved = localStorage.getItem(key);
+        if (saved === 'true') {
+          chk.checked = true;
+          chk.closest('.checklist-item').classList.add('completed');
+        }
+
+        chk.addEventListener('change', function() {
+          localStorage.setItem(key, chk.checked ? 'true' : 'false');
+          if (chk.checked) {
+            chk.closest('.checklist-item').classList.add('completed');
+          } else {
+            chk.closest('.checklist-item').classList.remove('completed');
+          }
+        });
+      });
+    }
+
+    window.addEventListener('scroll', function() {
+      var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      var scrolled = height > 0 ? (winScroll / height) * 100 : 0;
+      var pBar = document.getElementById('progressBar');
+      if (pBar) {
+        pBar.style.width = scrolled + '%';
+      }
+
+      var btnTop = document.getElementById('btnToTop');
+      if (btnTop) {
+        if (winScroll > 300) {
+          btnTop.classList.add('visible');
+        } else {
+          btnTop.classList.remove('visible');
+        }
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      template(); // Pre-extraer plantilla maestro
+
+      // Listener para navegación por pestañas
+      document.querySelectorAll('.tab-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var target = this.getAttribute('data-target');
+          if (target) activateTab(target);
+        });
+      });
+
+      // Listener para botones de copiar
+      document.querySelectorAll('.copy-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var text = this.getAttribute('data-copy');
+          if (!text) {
+            var pre = this.closest('.code-container').querySelector('pre code');
+            if (pre) text = pre.innerText;
+          }
+          if (text) copyText(text);
+        });
+      });
+
+      // Controles de zoom tipográfico
+      var btnZoomIn = document.getElementById('btnZoomIn');
+      var btnZoomOut = document.getElementById('btnZoomOut');
+      if (btnZoomIn) {
+        btnZoomIn.addEventListener('click', function() {
+          if (currentFontSize < 22) {
+            currentFontSize += 1;
+            document.body.style.fontSize = currentFontSize + 'px';
+          }
+        });
+      }
+      if (btnZoomOut) {
+        btnZoomOut.addEventListener('click', function() {
+          if (currentFontSize > 13) {
+            currentFontSize -= 1;
+            document.body.style.fontSize = currentFontSize + 'px';
+          }
+        });
+      }
+
+      // Alternar modo claro / oscuro
+      var btnTheme = document.getElementById('btnThemeToggle');
+      if (btnTheme) {
+        btnTheme.addEventListener('click', function() {
+          var isLight = document.body.getAttribute('data-theme') === 'light';
+          document.body.setAttribute('data-theme', isLight ? 'dark' : 'light');
+        });
+      }
+
+      // Botón volver arriba
+      var btnTop = document.getElementById('btnToTop');
+      if (btnTop) {
+        btnTop.addEventListener('click', function() {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+
+      // Buscador interactivo en texto
+      var searchInput = document.getElementById('globalSearch');
+      if (searchInput) {
+        searchInput.addEventListener('input', function() {
+          var query = this.value.trim().toLowerCase();
+          var cards = document.querySelectorAll('.card, .action-step');
+          if (!query) {
+            cards.forEach(function(c) { c.style.display = ''; });
+            return;
+          }
+          cards.forEach(function(c) {
+            var content = c.innerText.toLowerCase();
+            if (content.indexOf(query) !== -1) {
+              c.style.display = '';
+            } else {
+              c.style.display = 'none';
+            }
+          });
+        });
+      }
+
+      // Botón Imprimir / PDF con manejo de errores de iframe
+      var btnPrint = document.getElementById('btnPrintPdf');
+      if (btnPrint) {
+        btnPrint.addEventListener('click', function() {
+          preparePrint();
+          try {
+            window.print();
+          } catch (e) {
+            showToast('Para imprimir: abre este archivo en tu navegador y pulsa Ctrl+P');
+          }
+        });
+      }
+
+      // Inicializar Checklist y montaje de SVG en pestaña inicial
+      initChecklist();
+      mountActive();
+    });
+
+    var closedDetails = [];
+
+    function preparePrint() {
+      // 1. Abrir todos los details para impresión
+      closedDetails = [];
+      document.querySelectorAll('details').forEach(function(d) {
+        if (!d.open) {
+          closedDetails.push(d);
+          d.open = true;
+        }
+      });
+
+      // 2. Montar todos los contenedores SVG de todas las pestañas
+      document.querySelectorAll('[data-svg-hero]').forEach(function(m) {
+        mountOne(m);
+      });
+    }
+
+    function restoreAfterPrint() {
+      // Restaurar details que estaban cerrados
+      closedDetails.forEach(function(d) {
+        d.open = false;
+      });
+      closedDetails = [];
+      mountActive();
+    }
+
+    window.addEventListener('beforeprint', preparePrint);
+    window.addEventListener('afterprint', restoreAfterPrint);
+  </script>
+</body>
+</html>
